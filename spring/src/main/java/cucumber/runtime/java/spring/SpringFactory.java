@@ -2,6 +2,7 @@ package cucumber.runtime.java.spring;
 
 import static cucumber.runtime.java.spring.FixBootstrapUtils.createBootstrapContext;
 import static cucumber.runtime.java.spring.FixBootstrapUtils.resolveTestContextBootstrapper;
+import static io.cucumber.spring.api.CucumberTestContext.SCOPE_CUCUMBER_GLUE;
 import static java.util.Arrays.asList;
 
 import cucumber.runtime.CucumberException;
@@ -155,7 +156,7 @@ public class SpringFactory implements ObjectFactory {
         }
         applicationContext.registerShutdownHook();
         ConfigurableListableBeanFactory beanFactory = applicationContext.getBeanFactory();
-        beanFactory.registerScope(GlueCodeScope.NAME, new GlueCodeScope());
+        beanFactory.registerScope(SCOPE_CUCUMBER_GLUE, new GlueCodeScope());
         for (Class<?> stepClass : stepClasses) {
             registerStepClassBeanDefinition(beanFactory, stepClass);
         }
@@ -183,7 +184,7 @@ public class SpringFactory implements ObjectFactory {
         BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
         BeanDefinition beanDefinition = BeanDefinitionBuilder
                 .genericBeanDefinition(stepClass)
-                .setScope(GlueCodeScope.NAME)
+                .setScope(SCOPE_CUCUMBER_GLUE)
                 .getBeanDefinition();
         registry.registerBeanDefinition(stepClass.getName(), beanDefinition);
     }
@@ -249,7 +250,7 @@ class CucumberTestContextManager extends TestContextManager {
 
     private void registerGlueCodeScope(ConfigurableApplicationContext context) {
         do {
-            context.getBeanFactory().registerScope(GlueCodeScope.NAME, new GlueCodeScope());
+            context.getBeanFactory().registerScope(SCOPE_CUCUMBER_GLUE, new GlueCodeScope());
             context = (ConfigurableApplicationContext)context.getParent();
         } while (context != null);
     }
